@@ -1,0 +1,23 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Spline Editor"
+run/main_scene="uid://vkd4ofrjc7o"
+config/features=PackedStringArray("4.4")
+
+[godots]
+
+version_hint="4.4-dev7"
+
+[gui]
+
+theme/custom="uid://db03l04w48pmq"
