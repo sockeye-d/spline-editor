@@ -5,47 +5,59 @@ class_name MatrixEdit extends GridContainer
 signal matrix_changed
 
 
+@export var matrix_width: int:
+	set(value):
+		matrix_width = value
+		_regenerate_edits()
+@export var matrix_height: int:
+	set(value):
+		matrix_height = value
+		_regenerate_edits()
+@export var editable: bool = true:
+	set(value):
+		editable = value
+		for edit in edits:
+			edit.editable = editable
+
+
 var edits: Array[MatrixLineEdit]
 
 
-## please don't modify 🥺
-var matrix: Matrix
+var _data: PackedFloat64Array
 
 
 func _ready() -> void:
-	matrix = Matrix.new()
-	matrix.width = 4
-	matrix.height = 4
-	matrix.data = \
-	#[
-		#[ 1,  0,  0,  0],
-		#[-3,  3,  0,  0],
-		#[ 3, -6,  3,  0],
-		#[-1,  3, -3,  1],
-	#]
+	var matrix := Matrix.from_data(
+	##[
+		##[ 1,  0,  0,  0],
+		##[-3,  3,  0,  0],
+		##[ 3, -6,  3,  0],
+		##[-1,  3, -3,  1],
+	##]
 	[
 		[ 1 / 6.0,  4 / 6.0,  1 / 6.0,  0 / 6.0],
 		[-3 / 6.0,  0 / 6.0,  3 / 6.0,  0 / 6.0],
 		[ 3 / 6.0, -6 / 6.0,  3 / 6.0,  0 / 6.0],
 		[-1 / 6.0,  3 / 6.0, -3 / 6.0,  1 / 6.0],
-	]
-	matrix.changed.connect(_on_matrix_changed)
+	])
 	
-	_regenerate_edits()
+	set_matrix(matrix)
+	#matrix_changed.emit()
 
 
 func _regenerate_edits() -> void:
-	columns = matrix.width
+	var length := matrix_width * matrix_height
+	columns = matrix_width
 	for edit in edits:
+		remove_child(edit)
 		edit.queue_free()
-	edits.resize(matrix.width * matrix.height)
-	for i in matrix.width * matrix.height:
+	edits.resize(length)
+	_data.resize(length)
+	for i in length:
 		edits[i] = MatrixLineEdit.new()
 		edits[i].gui_input.connect(_on_child_edit_gui_input.bind(edits[i]))
 		edits[i].changed.connect(func(new_value: float):
-			matrix.set_block_signals(true)
-			matrix.seti(i, new_value)
-			matrix.set_block_signals(false)
+			_data[i] = new_value
 			matrix_changed.emit()
 		)
 		add_child(edits[i])
@@ -54,7 +66,7 @@ func _regenerate_edits() -> void:
 
 func _update_edits() -> void:
 	for i in edits.size():
-		edits[i].text = str(matrix.geti(i))
+		edits[i].text = str(_data[i])
 
 
 func _on_child_edit_gui_input(event: InputEvent, child: MatrixLineEdit) -> void:
@@ -81,8 +93,18 @@ func _move_caret(child: MatrixLineEdit, amount: int) -> void:
 	edits[child_i].edit.call_deferred()
 
 
-func _on_matrix_changed() -> void:
-	if matrix.get_width() != columns or matrix.get_height() != get_child_count() / columns:
-		_regenerate_edits()
+func set_matrix(new_matrix: Matrix) -> void:
+	_data = new_matrix.get_array()
+	
+	if new_matrix.get_width() != matrix_width or new_matrix.get_height() != matrix_height:
+		# these will regenerate the edits
+		matrix_width = new_matrix.get_width()
+		matrix_height = new_matrix.get_height()
 	else:
 		_update_edits()
+	
+	matrix_changed.emit()
+
+
+func get_matrix() -> Matrix:
+	return Matrix.from_array(_data, matrix_width)

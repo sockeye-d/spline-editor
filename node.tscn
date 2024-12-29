@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://vkd4ofrjc7o"]
+[gd_scene load_steps=8 format=3 uid="uid://vkd4ofrjc7o"]
 
 [ext_resource type="Script" uid="uid://0blrnwy5d3mj" path="res://node.gd" id="1_sy5k4"]
 [ext_resource type="Script" uid="uid://07k4agyxrdys" path="res://drag_container.gd" id="2_j2q8x"]
 [ext_resource type="Script" uid="uid://jy43b70j4idf" path="res://matrix_edit.gd" id="3_112p8"]
+[ext_resource type="Script" uid="uid://d7tv33lxbt8l" path="res://simple_container.gd" id="3_bss38"]
 [ext_resource type="Script" uid="uid://bxss5a6vy6401" path="res://graph.gd" id="4_e2u21"]
 
 [sub_resource type="Gradient" id="Gradient_j2q8x"]
@@ -35,6 +36,7 @@ mouse_filter = 0
 script = ExtResource("2_j2q8x")
 
 [node name="Icon" type="TextureRect" parent="DragContainer"]
+modulate = Color(0.761828, 0.187479, 0.254442, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture2D_112p8")
 
@@ -48,6 +50,7 @@ mouse_filter = 0
 script = ExtResource("2_j2q8x")
 
 [node name="Icon" type="TextureRect" parent="DragContainer2"]
+modulate = Color(0, 0.590801, 0.910669, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture2D_112p8")
 
@@ -61,6 +64,7 @@ mouse_filter = 0
 script = ExtResource("2_j2q8x")
 
 [node name="Icon" type="TextureRect" parent="DragContainer3"]
+modulate = Color(3.65794e-06, 0.78651, 0.167808, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture2D_112p8")
 
@@ -74,6 +78,7 @@ mouse_filter = 0
 script = ExtResource("2_j2q8x")
 
 [node name="Icon" type="TextureRect" parent="DragContainer4"]
+modulate = Color(0.936645, 0.933469, 0, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture2D_112p8")
 
@@ -87,35 +92,63 @@ grow_vertical = 0
 [node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
 layout_mode = 2
 
-[node name="Graph0" type="Control" parent="PanelContainer/HBoxContainer"]
-unique_name_in_owner = true
+[node name="SimpleContainer" type="Container" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
-size_flags_horizontal = 4
-script = ExtResource("4_e2u21")
+script = ExtResource("3_bss38")
+metadata/_custom_type_script = ExtResource("3_bss38")
 
-[node name="Graph1" type="Control" parent="PanelContainer/HBoxContainer"]
+[node name="Graph0" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("4_e2u21")
+min_y = -0.2
+draw_center = true
+graph_color = Color(0.761828, 0.187479, 0.254442, 1)
+center_color = Color(1, 1, 1, 0.027451)
+graph_thickness = 0.75
+center_thickness = 0.5
 
-[node name="Graph2" type="Control" parent="PanelContainer/HBoxContainer"]
+[node name="Graph1" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("4_e2u21")
+min_y = -0.2
+graph_color = Color(0, 0.590801, 0.910669, 1)
+center_color = Color(1, 1, 1, 0.027451)
+graph_thickness = 0.75
+center_thickness = 0.5
 
-[node name="Graph3" type="Control" parent="PanelContainer/HBoxContainer"]
+[node name="Graph2" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 script = ExtResource("4_e2u21")
+min_y = -0.2
+graph_color = Color(3.65794e-06, 0.78651, 0.167808, 1)
+center_color = Color(1, 1, 1, 0.027451)
+graph_thickness = 0.75
+center_thickness = 0.5
+
+[node name="Graph3" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 4
+script = ExtResource("4_e2u21")
+min_y = -0.2
+graph_color = Color(0.936645, 0.933469, 0, 1)
+center_color = Color(1, 1, 1, 0.027451)
+graph_thickness = 0.75
+center_thickness = 0.5
 
 [node name="MatrixEdit" type="GridContainer" parent="PanelContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 columns = 4
 script = ExtResource("3_112p8")
+matrix_width = 4
+matrix_height = 4
 
 [node name="OptionButton" type="OptionButton" parent="PanelContainer/HBoxContainer"]
 layout_mode = 2
@@ -133,3 +166,4 @@ popup/item_3/text = "B-spline"
 popup/item_3/id = 3
 
 [connection signal="matrix_changed" from="PanelContainer/HBoxContainer/MatrixEdit" to="." method="_on_matrix_edit_matrix_changed"]
+[connection signal="item_selected" from="PanelContainer/HBoxContainer/OptionButton" to="." method="_on_option_button_item_selected"]

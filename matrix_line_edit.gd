@@ -5,6 +5,7 @@ signal changed(new_value)
 
 
 func _init() -> void:
+	expand_to_text_length = false
 	text_submitted.connect(_on_text_submitted)
 
 

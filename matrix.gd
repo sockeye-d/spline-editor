@@ -1,29 +1,8 @@
 @tool
-class_name Matrix extends Resource
+class_name Matrix
 
 
-@export_range(1, 4, 1, "or_greater") var width: int:
-	set(value):
-		if value < 1:
-			value = 1
-		width = value
-		resize(width, height)
-		notify_property_list_changed()
-@export_range(1, 4, 1, "or_greater") var height: int:
-	set(value):
-		if value < 1:
-			value = 1
-		height = value
-		resize(width, height)
-		notify_property_list_changed()
-
-
-@export var data: Array[PackedFloat64Array]:
-	set(value):
-		data = value
-		if not is_balanced():
-			balance()
-			notify_property_list_changed()
+var data: Array[PackedFloat64Array]
 
 
 func getxy(x: int, y: int) -> float:
@@ -40,7 +19,6 @@ func getv(v: Vector2i) -> float:
 
 func setxy(x: int, y: int, value: float) -> void:
 	data[y][x] = value
-	emit_changed()
 
 
 func seti(i: int, value: float) -> void:
@@ -49,7 +27,6 @@ func seti(i: int, value: float) -> void:
 
 func setv(v: Vector2i, value: float) -> void:
 	setxy(v.x, v.y, value)
-	emit_changed()
 
 
 func transposed() -> Matrix:
@@ -120,7 +97,6 @@ func set_all(fn: Callable) -> void:
 	for y in get_height():
 		for x in get_width():
 			setxy(x, y, fn.call(x, y))
-	emit_changed()
 
 
 func get_row(row: int) -> PackedFloat64Array:
@@ -146,11 +122,10 @@ func resize(new_width: int, new_height: int) -> void:
 	for row in data:
 		row.resize(new_width)
 	
-	emit_changed()
 
 
 func resized(new_width: int, new_height: int) -> Matrix:
-	var m := duplicate()
+	var m := Matrix.new()
 	m.resize(new_width, new_height)
 	
 	return m
@@ -171,14 +146,41 @@ func is_balanced() -> bool:
 	return true
 
 
+func get_array() -> PackedFloat64Array:
+	var arr: PackedFloat64Array
+	arr.resize(get_width() * get_height())
+	for i in arr.size():
+		arr[i] = geti(i)
+	return arr
+
+
+func lerp_weights(to_matrix: Matrix, weight: float) -> Matrix:
+	assert(get_size() == to_matrix.get_size())
+	return Matrix.from_fn(
+		get_width(),
+		get_height(),
+		func(x: int, y: int) -> float:
+			return lerpf(getxy(x, y), to_matrix.getxy(x, y), weight)
+	)
+
+
+func lerp_weights_multi(to_matrix: Matrix, weight: Matrix) -> Matrix:
+	assert(get_size() == to_matrix.get_size() and get_size() == weight.get_size())
+	return Matrix.from_fn(
+		get_width(),
+		get_height(),
+		func(x: int, y: int) -> float:
+			return lerpf(getxy(x, y), to_matrix.getxy(x, y), weight.getxy(x, y))
+	)
+
+
 static func from_sizev(size: Vector2i) -> Matrix:
 	return Matrix.from_size(size.x, size.y)
 
 
 static func from_size(width: int, height: int) -> Matrix:
 	var m := Matrix.new()
-	m.width = width
-	m.height = height
+	m.resize(width, height)
 	
 	return m
 
@@ -188,4 +190,20 @@ static func from_data(data: Array[PackedFloat64Array]) -> Matrix:
 	for row in data:
 		assert(row.size() == data[0].size(), "All rows must be the same size")
 	m.data = data
+	return m
+
+
+static func from_array(array: PackedFloat64Array, width: int) -> Matrix:
+	# maybe not necessary since unfilled cells can remain 0.0
+	assert(array.size() % width == 0, "Array size must be multiple of width")
+	
+	var m := Matrix.from_size(width, array.size() / width)
+	for i in array.size():
+		m.seti(i, array[i])
+	return m
+
+
+static func from_fn(width: int, height: int, fn: Callable) -> Matrix:
+	var m := Matrix.from_size(width, height)
+	m.set_all(fn)
 	return m

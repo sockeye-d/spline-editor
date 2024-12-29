@@ -21,3 +21,8 @@ version_hint="4.4-dev7"
 [gui]
 
 theme/custom="uid://db03l04w48pmq"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

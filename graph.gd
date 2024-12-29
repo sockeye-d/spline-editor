@@ -38,9 +38,10 @@ func _notification(what: int) -> void:
 
 
 func _draw() -> void:
-	var center := Vector2(0.5 * size.x, remap(0.0, min_y, max_y, size.y, 0.0))
-	draw_line(Vector2(0.0, center.y), Vector2(size.x, center.y), center_color, center_thickness, true)
-	draw_line(Vector2(center.x, 0.0), Vector2(center.x, size.y), center_color, center_thickness, true)
+	if draw_center:
+		var center := Vector2(0.5 * size.x, remap(0.0, min_y, max_y, size.y, 0.0))
+		draw_line(Vector2(0.0, center.y), Vector2(size.x, center.y), center_color, center_thickness, true)
+		draw_line(Vector2(center.x, 0.0), Vector2(center.x, size.y), center_color, center_thickness, true)
 	var points_scaled: PackedVector2Array
 	points_scaled.resize(points.size())
 	for i in points.size():

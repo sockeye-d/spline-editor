@@ -1,6 +1,6 @@
 # Todo
 
-- [ ] Add basis function graphs
-- [ ] Add matrix display and controls
+- [x] Add basis function graphs
+- [x] Add matrix display and controls
 - [ ] Add splines, not just a segment
 - [ ] profit

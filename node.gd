@@ -1,6 +1,39 @@
 extends Control
 
 
+var spline_matrices: Array[Matrix] = [
+	# bezier
+	Matrix.from_data([
+		[ 1,  0,  0,  0],
+		[-3,  3,  0,  0],
+		[ 3, -6,  3,  0],
+		[-1,  3, -3,  1],
+	]),
+	# hermite
+	Matrix.from_data([
+		[ 1,  0,  0,  0],
+		[ 0,  1,  0,  0],
+		[-3, -2,  3, -1],
+		[ 2,  1, -2,  1],
+	]),
+	# catmull-rom
+	Matrix.from_data([
+		[ 0,  2,  0,  0],
+		[-1,  0,  1,  0],
+		[ 2, -5,  4, -1],
+		[-1,  3, -3,  1],
+	]).fmul(0.5),
+	# b-spline
+	Matrix.from_data([
+		[ 1,  4,  1,  0],
+		[-3,  0,  3,  0],
+		[ 3, -6,  3,  0],
+		[-1,  3, -3,  1],
+	]).fmul(1.0 / 6.0),
+	
+]
+
+
 @onready var matrix_edit: MatrixEdit = %MatrixEdit
 @onready var graphs: Array[Graph] = [
 	%Graph0,
@@ -11,12 +44,15 @@ extends Control
 
 
 var drags: Array[DragContainer]
+var matrix: Matrix
 
 
 func _ready() -> void:
 	drags.assign(get_children().filter(func(e): return e is DragContainer))
 	for drag in drags:
 		drag.dragged.connect(queue_redraw)
+	matrix_edit.matrix_changed.connect(func(): matrix = matrix_edit.get_matrix())
+	matrix = matrix_edit.get_matrix()
 
 
 func _draw() -> void:
@@ -54,12 +90,12 @@ func _draw() -> void:
 		])
 		
 		
-		var coeff := t_matrix.matmul(matrix_edit.matrix)
+		var coeff := t_matrix.matmul(matrix)
 		var x := coeff.matmul(point_matrix_x).value()
 		var y := coeff.matmul(point_matrix_y).value()
 		
 		for j in graphs.size():
-			graphs[-1-j].points[i] = coeff.getxy(j, 0)
+			graphs[j].points[i] = coeff.getxy(j, 0)
 		
 		points[i] = Vector2(x, y)
 	
@@ -80,3 +116,33 @@ func draw_lines(points: PackedVector2Array, color: Color, width: float = -1.0, a
 
 func _on_matrix_edit_matrix_changed() -> void:
 	queue_redraw()
+
+
+func _on_option_button_item_selected(index: int) -> void:
+	var current_matrix := matrix_edit.get_matrix()
+	var new_matrix := spline_matrices[index]
+	var lerp_matrix := current_matrix
+	#var t := create_tween()
+	var update_matrix := func(): matrix_edit.set_matrix(lerp_matrix)
+	#t.tween_callback(func(): matrix_edit.editable = false)
+	#t.tween_method(
+		#func(t: float) -> void:
+			#var lerp_mat := current_matrix.lerp_weights(new_matrix, t)
+			#matrix_edit.set_matrix(lerp_mat),
+		#0.0,
+		#1.0,
+		#1.0
+	#).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
+	#t.tween_callback(func(): matrix_edit.editable = true)
+	#matrix_edit.set_matrix(spline_matrices[index].duplicated())
+	for x in current_matrix.get_width():
+		for y in current_matrix.get_height():
+			var t := create_tween()
+			t.tween_method(
+				func(t: float) -> void:
+					lerp_matrix.setxy(x, y, t)
+					update_matrix.call_deferred(),
+				current_matrix.getxy(x, y),
+				new_matrix.getxy(x, y),
+				0.5
+			).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
