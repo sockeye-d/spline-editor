@@ -82,22 +82,22 @@ modulate = Color(0.936645, 0.933469, 0, 1)
 layout_mode = 2
 texture = SubResource("GradientTexture2D_112p8")
 
-[node name="PanelContainer" type="PanelContainer" parent="."]
+[node name="MatrixControlContainer" type="PanelContainer" parent="."]
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 grow_vertical = 0
 
-[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer"]
+[node name="HBoxContainer" type="HBoxContainer" parent="MatrixControlContainer"]
 layout_mode = 2
 
-[node name="SimpleContainer" type="Container" parent="PanelContainer/HBoxContainer"]
+[node name="SimpleContainer" type="Container" parent="MatrixControlContainer/HBoxContainer"]
 layout_mode = 2
 script = ExtResource("3_bss38")
 metadata/_custom_type_script = ExtResource("3_bss38")
 
-[node name="Graph0" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
+[node name="Graph0" type="Control" parent="MatrixControlContainer/HBoxContainer/SimpleContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -109,7 +109,7 @@ center_color = Color(1, 1, 1, 0.027451)
 graph_thickness = 0.75
 center_thickness = 0.5
 
-[node name="Graph1" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
+[node name="Graph1" type="Control" parent="MatrixControlContainer/HBoxContainer/SimpleContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -120,7 +120,7 @@ center_color = Color(1, 1, 1, 0.027451)
 graph_thickness = 0.75
 center_thickness = 0.5
 
-[node name="Graph2" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
+[node name="Graph2" type="Control" parent="MatrixControlContainer/HBoxContainer/SimpleContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -131,7 +131,7 @@ center_color = Color(1, 1, 1, 0.027451)
 graph_thickness = 0.75
 center_thickness = 0.5
 
-[node name="Graph3" type="Control" parent="PanelContainer/HBoxContainer/SimpleContainer"]
+[node name="Graph3" type="Control" parent="MatrixControlContainer/HBoxContainer/SimpleContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
@@ -142,7 +142,7 @@ center_color = Color(1, 1, 1, 0.027451)
 graph_thickness = 0.75
 center_thickness = 0.5
 
-[node name="MatrixEdit" type="GridContainer" parent="PanelContainer/HBoxContainer"]
+[node name="MatrixEdit" type="GridContainer" parent="MatrixControlContainer/HBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 columns = 4
@@ -150,7 +150,7 @@ script = ExtResource("3_112p8")
 matrix_width = 4
 matrix_height = 4
 
-[node name="OptionButton" type="OptionButton" parent="PanelContainer/HBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="MatrixControlContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
@@ -165,5 +165,39 @@ popup/item_2/id = 2
 popup/item_3/text = "B-spline"
 popup/item_3/id = 3
 
-[connection signal="matrix_changed" from="PanelContainer/HBoxContainer/MatrixEdit" to="." method="_on_matrix_edit_matrix_changed"]
-[connection signal="item_selected" from="PanelContainer/HBoxContainer/OptionButton" to="." method="_on_option_button_item_selected"]
+[node name="VisualControlContainer" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 22.0
+grow_horizontal = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VisualControlContainer"]
+layout_mode = 2
+
+[node name="DisplayTypeOptionButton" type="OptionButton" parent="VisualControlContainer/HBoxContainer"]
+layout_mode = 2
+selected = 0
+item_count = 5
+popup/item_0/text = "Dot"
+popup/item_0/id = 0
+popup/item_1/text = "Velocity"
+popup/item_1/id = 1
+popup/item_2/text = "Jerk"
+popup/item_2/id = 3
+popup/item_3/text = "Curvature"
+popup/item_3/id = 4
+popup/item_4/text = "Tangent/normal"
+popup/item_4/id = 2
+
+[node name="PlayButton" type="Button" parent="VisualControlContainer/HBoxContainer"]
+layout_mode = 2
+text = "Play"
+
+[node name="TimeSlider" type="HSlider" parent="VisualControlContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[connection signal="matrix_changed" from="MatrixControlContainer/HBoxContainer/MatrixEdit" to="." method="_on_matrix_edit_matrix_changed"]
+[connection signal="item_selected" from="MatrixControlContainer/HBoxContainer/OptionButton" to="." method="_on_option_button_item_selected"]
